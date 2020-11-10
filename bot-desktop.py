@@ -60,15 +60,17 @@ def disminuyeMinimoCompraYa():
 ############ PANTALLA 2 DE BUSQUEDA ###################################
 #######################################################################
 #######################################################################
-
+MmWhats=""
 #CLICK PRIMER ELEMENTO ENCONTRADO SOLO SI LO ENCUENTRA
 def clickEncontrado():
     if len(driver.find_elements_by_xpath("/html/body/main/section/section/div[2]/div/div/section[1]/div/ul/li/div")) > 0:
         driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div/section[1]/div/ul/li/div").click()
         print(driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div/section[1]/div/ul/li/div/div[2]/div[3]/span[2]").text)
         pe=driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div/section[1]/div/ul/li/div/div[2]/div[3]/span[2]").text
-        enviarWhatsapp("POR: "+pe)
-        tablaLog.insert(parent="",index="end",text="parent",values=("Encontrado: "+pe))
+        global mWhats
+        mWhats=pe
+        # enviarWhatsapp("POR: "+pe)
+        # tablaLog.insert(parent="",index="end",text="parent",values=("Encontrado: "+pe))
         comprar()
 
 #CLICK PRIMER ELEMENTO ENCONTRADO SOLO SI LO ENCUENTRA NO LO VENDE
@@ -77,7 +79,9 @@ def clickEncontradoSinVender():
         driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div/section[1]/div/ul/li/div").click()
         print(driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div/section[1]/div/ul/li/div/div[2]/div[3]/span[2]").text)
         pe=driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div/section[1]/div/ul/li/div/div[2]/div[3]/span[2]").text
-        enviarWhatsapp("POR: "+pe)
+        global mWhats
+        mWhats=pe
+        # enviarWhatsapp("POR: "+pe)
         tablaLog.insert(parent="",index="end",text="parent",values=("Encontrado: "+pe))
         comprarSinVender()        
 
@@ -118,13 +122,14 @@ def comprar():
     driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div/section[2]/div/div/div[2]/div[2]/button[2]").click()
     if len(driver.find_elements_by_xpath("/html/body/div[4]/section/div/div/button[1]")) > 0:
         driver.find_element_by_xpath("/html/body/div[4]/section/div/div/button[1]").click()
-        time.sleep(5)
+        time.sleep(2)
         if float(driver.find_element_by_xpath("/html/body/main/section/section/div[1]/div[1]/div[1]").text) != float(saldoInicial):
             saldo=driver.find_element_by_xpath("/html/body/main/section/section/div[1]/div[1]/div[1]").text
             print(saldo)
-            print("SE COMPRO")
-            enviarWhatsapp("SE COMPRO")
-            enviarWhatsapp(saldo)
+            # print("SE COMPRO")
+            enviarWhatsapp("SE COMPRO "+mWhats)
+            # saldo=driver.find_element_by_xpath("/html/body/main/section/section/div[1]/div[1]/div[1]").text
+            # time.sleep(3)
             # saldo=driver.find_element_by_xpath("/html/body/main/section/section/div[1]/div[1]/div[1]").text
             time.sleep(3)
             if len(driver.find_elements_by_xpath("/html/body/main/section/section/div[2]/div/div/section[2]/div/div/div[2]/div[2]/div[1]/button")) > 0:
@@ -135,9 +140,9 @@ def comprar():
                 enviarWhatsapp("FALSA ALARMA")
                 print("FALSA ALARMA")
         else:
-            print("NO SE COMPRO")
-            enviarWhatsapp("NO SE COMPRO")
-        time.sleep(5)
+            print("NO SE COMPRO "+str(mWhats))
+            enviarWhatsapp("NO SE COMPRO "+str(mWhats))
+        time.sleep(2)
     else:
         enviarWhatsapp("FALSA ALARMA")
         print("FALSA ALARMA")
@@ -150,8 +155,8 @@ def comprarSinVender():
         driver.find_element_by_xpath("/html/body/div[4]/section/div/div/button[1]").click()
         time.sleep(2)
         if float(driver.find_element_by_xpath("/html/body/main/section/section/div[1]/div[1]/div[1]").text) != float(saldoInicial):
-            print("SE COMPRO")
-            enviarWhatsapp("SE COMPRO")
+            # print("SE COMPRO")
+            enviarWhatsapp("SE COMPRO "+mWhats)
             # saldo=driver.find_element_by_xpath("/html/body/main/section/section/div[1]/div[1]/div[1]").text
             # time.sleep(3)
             if len(driver.find_elements_by_xpath("/html/body/main/section/section/div[2]/div/div/section[2]/div/div/div[2]/div[2]/div[1]/button")) > 0:
@@ -161,11 +166,25 @@ def comprarSinVender():
                 print("FALSA ALARMA")
         else:
             print("NO SE COMPRO")
-            enviarWhatsapp("NO SE COMPRO")
+            enviarWhatsapp("NO SE COMPRO "+mWhats)
         # time.sleep(5)
     else:
         enviarWhatsapp("FALSA ALARMA")
         print("FALSA ALARMA")
+
+
+def limpiarvendidos():
+    driver.find_element_by_xpath("/html/body/main/section/nav/button[3]/span").click()
+    driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div/div[3]/div[2]").click()
+    if len(driver.find_elements_by_xpath("/html/body/main/section/section/div[2]/div/div/div/section[1]/header/button")) > 0:
+        driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div/div/section[1]/header/button").click()
+        time.sleep(3)
+    driver.find_element_by_xpath("/html/body/main/section/nav/button[3]/span").click()
+    time.sleep(3)
+    driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div/div[2]/div[2]").click()
+    saldo=driver.find_element_by_xpath("/html/body/main/section/section/div[1]/div[1]/div[1]").text
+    print(saldo)
+    
 
 
 #######################################################################
@@ -263,6 +282,7 @@ def iniciar():
     global switch  
     switch = True
 
+
     #DEFINE EL PRECIO MAXIMO DE BUSQUEDA
     precioMaximoBusqueda()
     def run():
@@ -274,11 +294,14 @@ def iniciar():
                 iteraciones=iteraciones+1
                 # print(iteraciones)
                 if iteraciones==30:
-                    print("ESPERANDO 45 SEGUNDOS")
-                    enviarWhatsapp("ESPERANDO 45 SEGUNDOS")
-                    time.sleep(45)
-                    enviarWhatsapp("REINICIADO")
-                    print("REINICIANDO")
+                    print("Limpiando vendidos")
+                    enviarWhatsapp("Limpiando vendidos")
+                    limpiarvendidos()
+                    # print("ESPERANDO 45 SEGUNDOS")
+                    # enviarWhatsapp("ESPERANDO 45 SEGUNDOS")
+                    # time.sleep(45)
+                    # enviarWhatsapp("REINICIADO")
+                    # print("REINICIANDO")
                     iteraciones=0
                 if espera==3:
                     aumentaMinimoCompraYa()
