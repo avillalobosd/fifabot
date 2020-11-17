@@ -1,3 +1,8 @@
+#AGREGAR EN EL SISTEMA PATH LA RUTA DE CHROME
+
+# CORRE ESTO PRIMERO EN EL CMD
+# chrome.exe --remote-debugging-port=9250 --user-data-dir="C:/chromedriver2"
+#INICIAR SESION EN LA WEBAPP EN LA PANTALLA QUE SE ABRIO
 from tkinter import *
 from tkinter import ttk
 import os
@@ -11,6 +16,21 @@ import win32clipboard
 from PIL import Image
 switch = True  
 os.system('clear')
+import pyrebase
+
+config = {
+  "apiKey": "AIzaSyCO09JciLlqV3N4K7hV90qK_8XBvGBaCLI",
+  "authDomain": "fifabot-e4c0b.firebaseapp.com",
+  "databaseURL": "https://fifabot-e4c0b.firebaseio.com",
+  "storageBucket": "fifabot-e4c0b.appspot.com"
+}
+firebase = pyrebase.initialize_app(config)
+db = firebase.database()
+
+
+
+
+
 
 
 #### CONGIRUACION PANTALLA DE WEB APP
@@ -52,7 +72,97 @@ def aumentaMinimoCompraYa():
 
 #CLICK EN DISMINUIR EL PRECIO MINIMO
 def disminuyeMinimoCompraYa():
-    driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[2]/div[5]/div[2]/button[1]").click()
+    for x in range(0, 3):
+        driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[2]/div[5]/div[2]/button[1]").click()
+def Mas1ClickMaximo():
+    driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[2]/div[6]/div[2]/button[2]").click()
+    time.sleep(2)
+
+def Menos1ClickMaximo():
+    driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[2]/div[6]/div[2]/button[1]").click()
+    time.sleep(2)
+aumento=0
+
+def buscarRango():
+    print("BUSCANCO RANGO")
+    global aumento
+    aumento=0
+    switchoff()
+    irMercadoTransferencias()
+    Mas1ClickMaximo()
+    Mas1ClickMaximo()
+    clickBuscar()
+    time.sleep(3)
+    global count
+    count = len(driver.find_elements_by_xpath("/html/body/main/section/section/div[2]/div/div/section[1]/div/ul/li"))
+    print(count)
+    while aumento!=1000:
+        count = len(driver.find_elements_by_xpath("/html/body/main/section/section/div[2]/div/div/section[1]/div/ul/li"))
+        if count ==0:
+            aumento=aumento+1
+            irMercadoTransferencias()
+            Mas1ClickMaximo()
+            clickBuscar()
+            time.sleep(3)
+            # count = len(driver.find_elements_by_xpath("/html/body/main/section/section/div[2]/div/div/section[1]/div/ul/li"))
+            print("+1 COUNT=0")
+        elif driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div/section[2]/div/div/div[2]/div[1]/div/div[1]/span[2]").text[:1]=="<":
+            print(count)
+            # print()
+            aumento=aumento-1
+            irMercadoTransferencias()
+            Menos1ClickMaximo()
+            clickBuscar()
+            time.sleep(3)
+
+        elif count<=10 and int(driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div/section[2]/div/div/div[2]/div[1]/div/div[1]/span[2]").text[:2])>=50 :
+            print("<8 TIEMPO MAYOR A 50")
+            break
+        else:
+            print(count)
+            # print()
+            aumento=aumento-1
+            irMercadoTransferencias()
+            Menos1ClickMaximo()
+            clickBuscar()
+            time.sleep(3)
+            # count = len(driver.find_elements_by_xpath("/html/body/main/section/section/div[2]/div/div/section[1]/div/ul/li"))
+            print("-1 NO SE CUMPLE")
+    print(aumento)
+    actualMaximo=int(maximo.get())
+    actualFinal=int(final.get())
+    if actualMaximo+int(aumento)*100>2600:
+        final.delete(0,END)
+        final.insert(0,actualFinal+int(aumento)*100)
+        maximo.delete(0,END)
+        maximo.insert(0,int(final.get())-300)
+        enviarWhatsapp("Nuevo Rango Compra: "+str(maximo.get())+" Venta: "+final.get())
+        irMercadoTransferencias()
+        time.sleep(3)
+        precioMaximoBusqueda()
+        clickBuscar()
+        switchoff()
+        time.sleep(5)
+        iniciar()
+    else:
+        if actualMaximo+int(aumento)*100<=int(numeroDetener.get()):
+            switchoff()
+        else:
+            final.delete(0,END)
+            final.insert(0,actualFinal+int(aumento)*100)
+            maximo.delete(0,END)
+            maximo.insert(0,int(final.get())-200)
+            enviarWhatsapp("Nuevo Rango Compra: "+str(maximo.get())+" Venta: "+final.get())
+            irMercadoTransferencias()
+            time.sleep(3)
+            precioMaximoBusqueda()
+            clickBuscar()
+            switchoff()
+            time.sleep(5)
+            iniciar()
+
+def buscarRango2():
+    print(int(driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div/section[2]/div/div/div[2]/div[1]/div/div[1]/span[2]").text[:2]))
 
 
 #######################################################################
@@ -107,35 +217,39 @@ def definirPrecio():
 
 ## COMPRA EL ARTICULO Y LO PONER EN EL MERCADO
 def comprar():
-    saldoInicial=driver.find_element_by_xpath("/html/body/main/section/section/div[1]/div[1]/div[1]").text
-    driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div/section[2]/div/div/div[2]/div[2]/button[2]").click()
-    if len(driver.find_elements_by_xpath("/html/body/div[4]/section/div/div/button[1]")) > 0:
-        driver.find_element_by_xpath("/html/body/div[4]/section/div/div/button[1]").click()
-        time.sleep(2)
-        if float(driver.find_element_by_xpath("/html/body/main/section/section/div[1]/div[1]/div[1]").text) != float(saldoInicial):
-            saldo=driver.find_element_by_xpath("/html/body/main/section/section/div[1]/div[1]/div[1]").text
-            print(saldo)
-            # print("SE COMPRO")
-            enviarWhatsapp("SE COMPRO "+mWhats+" Iteracion: " + str(iteraciones))
-            # saldo=driver.find_element_by_xpath("/html/body/main/section/section/div[1]/div[1]/div[1]").text
-            # time.sleep(3)
-            # saldo=driver.find_element_by_xpath("/html/body/main/section/section/div[1]/div[1]/div[1]").text
-            time.sleep(3)
-            if len(driver.find_elements_by_xpath("/html/body/main/section/section/div[2]/div/div/section[2]/div/div/div[2]/div[2]/div[1]/button")) > 0:
-                ponerMercado()
-                time.sleep(2)
-                definirPrecio()
+    try:
+        nueva=driver.find_element_by_xpath("/html/body/main/section/section/div[1]/div[1]/div[1]").text
+        saldoInicial=nueva.replace(",",".")
+        print("ESTE ES EL SALDO INICIAL")
+        print(saldoInicial)
+        driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div/section[2]/div/div/div[2]/div[2]/button[2]").click()
+        if len(driver.find_elements_by_xpath("/html/body/div[4]/section/div/div/button[1]")) > 0:
+            driver.find_element_by_xpath("/html/body/div[4]/section/div/div/button[1]").click()
+            # print("PUES LO COMPRE")
+            time.sleep(5)
+            nueva2=driver.find_element_by_xpath("/html/body/main/section/section/div[1]/div[1]/div[1]").text
+            saldoF=nueva2.replace(",",".")
+            if float(saldoF) != float(saldoInicial):
+                saldo=driver.find_element_by_xpath("/html/body/main/section/section/div[1]/div[1]/div[1]").text
+                print(saldo)
+                enviarWhatsapp("SE COMPRO "+mWhats+" Iteracion: " + str(iteraciones))
+                time.sleep(5)
+                if len(driver.find_elements_by_xpath("/html/body/main/section/section/div[2]/div/div/section[2]/div/div/div[2]/div[2]/div[1]/button")) > 0:
+                    ponerMercado()
+                    time.sleep(2)
+                    definirPrecio()
+                else:
+                    enviarWhatsapp("FALSA ALARMA")
+                    print("FALSA ALARMA")
             else:
-                enviarWhatsapp("FALSA ALARMA")
-                print("FALSA ALARMA")
+                print("NO SE COMPRO "+str(mWhats))
+                enviarWhatsapp("NO SE COMPRO "+str(mWhats) + " Iteracion: " + str(iteraciones))
+            time.sleep(2)
         else:
-            print("NO SE COMPRO "+str(mWhats))
-            enviarWhatsapp("NO SE COMPRO "+str(mWhats) + " Iteracion: " + str(iteraciones))
-        time.sleep(2)
-    else:
-        enviarWhatsapp("FALSA ALARMA")
-        print("FALSA ALARMA")
-
+            enviarWhatsapp("FALSA ALARMA")
+            print("FALSA ALARMA")
+    except:
+        print("ERROR EN COMPRAR")
 
 def limpiarvendidos():
     ##CLICK MENU TRASPASOS
@@ -156,12 +270,14 @@ def limpiarvendidos():
     saldo=driver.find_element_by_xpath("/html/body/main/section/section/div[1]/div[1]/div[1]").text
     enviarWhatsapp(saldo)
     
+    
+    
 def irMercadoTransferencias():
     driver.find_element_by_xpath("/html/body/main/section/nav/button[3]/span").click()
     time.sleep(5)
     driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div/div[2]/div[2]").click()
-    saldo=driver.find_element_by_xpath("/html/body/main/section/section/div[1]/div[1]/div[1]").text
-    enviarWhatsapp(saldo)
+
+
 
 #######################################################################
 ####################################################################### 
@@ -228,6 +344,8 @@ def detener():
 
 
 
+
+
 #######################################################################
 ####################################################################### 
 #######################################################################
@@ -256,14 +374,14 @@ def iniciar():
     print(saldo)
     # tablaLog.insert(parent="",index="end",text="parent",values=("SaldoActual:"+saldo))
     #TOMA PRECIO FINAL DE CAMPO 
-    precioFinal=int(final.get()) 
+    # precioFinal=int(final.get()) 
     # maximo.delete(0,END)
     # maximo.insert(0,int(precioFinal/1.07))
     # inicial.delete(0,END)
     # inicial.insert(0,precioFinal-1000)
 
-    print("GANANCIA MINIMA")
-    print(float(precioFinal)*.95-int(maximo.get()))
+    # print("GANANCIA MINIMA")
+    # print(float(precioFinal)*.95-int(maximo.get()))
     # print(driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[1]/div/div[1]/input").text)
     # tablaLog.insert(parent="",index="end",text="parent",values=("Jugador:"+driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[1]/div/div[1]/input").text.replace(" ", "")))
     
@@ -288,9 +406,14 @@ def iniciar():
                 iteraciones=iteraciones+1
                 global cuantos
                 cuantos=cuantos+1
-                if int(cuantos) % 100==0: 
-                    enviarWhatsapp("Van "+str(cuantos))   
-                if cuantos==5000:
+                if int(eR.get())==1:
+                    if int(cuantos) % int(numeroRango.get())==0: 
+                        enviarWhatsapp("Van "+str(cuantos))
+                        enviarWhatsapp("Calculando Rango")
+                        buscarRango()    
+                        saldo=driver.find_element_by_xpath("/html/body/main/section/section/div[1]/div[1]/div[1]").text
+                        enviarWhatsapp(saldo)
+                if cuantos==10000:
                     break
 
                 print(iteraciones)
@@ -300,9 +423,11 @@ def iniciar():
                     if r.get() ==1:
                         enviarWhatsapp("Limpiando vendidos")
                         limpiarvendidos()
+                        saldo=driver.find_element_by_xpath("/html/body/main/section/section/div[1]/div[1]/div[1]").text
+                        enviarWhatsapp(saldo)                        
                     if r.get() ==2:
-                        print("ESPERANDO 45 SEGUNDOS")
-                        enviarWhatsapp("ESPERANDO 45 SEGUNDOS")
+                        print("ESPERANDO S SEGUNDOS")
+                        enviarWhatsapp("ESPERANDO "+str(segundos.get())+" SEGUNDOS")
                         time.sleep(int(segundos.get()))
                         enviarWhatsapp("REINICIADO")
                         print("REINICIANDO")
@@ -331,6 +456,7 @@ def iniciar():
         except Exception:
             try:
                 if r.get() ==1:
+                    time.sleep(5)
                     irMercadoTransferencias()
                     iteraciones=0
                     run()
@@ -362,11 +488,31 @@ def switchoff():
     switch = False  
     # tablaLog.insert(parent="",index="end",text="parent",values=("Apagado") )
 
+
+############### CONTROL REMOTO #####################
+
+
+# def stream_handler(message):
+#     command=message['data']['comando']
+#     if command=='STOP':
+#         switchoff()
+
+#     print(message['data']['comando']) # put
+
+# my_stream = db.child("comando").stream(stream_handler)
+
+
+
+
+
 #######################################################################
 ####################################################################### 
 ############ INTERFAZ DE USUARIO ######################################
 #######################################################################
 #######################################################################
+
+
+
 
 #### FRAMES PRINCIPALES ####
     ### IZQUIERDA
@@ -387,11 +533,13 @@ frameOpciones = LabelFrame(frame2, text="Cada N búsquedas")
 frameOpciones.grid(row=0,column=0)
 frameAcciones = LabelFrame(frame2, text="Acciones")
 frameAcciones.grid(row=2,column=0)
+frameRango = LabelFrame(frame2, text="Buscar Cambio de Precios")
+frameRango.grid(row=4,column=0)
 
 #### FRAME ACCIONES
     ## ENVIAR WHATSAPP
 eW=IntVar()
-eW.set("1")
+eW.set("2")
 eWradio=Radiobutton(frameAcciones, text="Enviar Whatsapp eW=1", variable=eW, value=1)
 eWradio2=Radiobutton(frameAcciones, text="NO Enviar Whatsapp eW=2", variable=eW, value=2)
 eWradio.grid(sticky=W,row=0,column=0)
@@ -399,20 +547,46 @@ eWradio2.grid(sticky=W, row=1,column=0)
 
     ## ENVIAR IMAGEN WHATSAPP
 eSS=IntVar()
-eSS.set("1")
+eSS.set("2")
 eSSradio=Radiobutton(frameAcciones, text="Enviar ScreenShot eSS=1", variable=eSS, value=1)
 eSSradio2=Radiobutton(frameAcciones, text="NO Enviar ScreenShot eSS=2", variable=eSS, value=2)
 eSSradio.grid(sticky=W,row=2,column=0)
 eSSradio2.grid(sticky=W, row=3,column=0)
 
+#### FRAME RANGO
+eR=IntVar()
+eR.set("1")
+eRango=Radiobutton(frameRango, text="Buscar Rango eR=1", variable=eR, value=1)
+eRango2=Radiobutton(frameRango, text="NO Buscar Rango eR=2", variable=eR, value=2)
+eRango.grid(sticky=W,row=1,column=0)
+eRango2.grid(sticky=W, row=2,column=0)
+
+rangoLabel=Label(frameRango,text="Cada __ busquedas")
+rangoLabel.grid(row=3,column=0)
+numeroRango = Entry(frameRango)
+numeroRango.grid(row=4,column=0)
+numeroRango.delete(0,END)
+numeroRango.insert(0,31)
+
+detenerLabel=Label(frameRango,text="Detener cuando el precio sea")
+detenerLabel.grid(row=5,column=0)
+numeroDetener = Entry(frameRango)
+numeroDetener.grid(row=6,column=0)
+numeroDetener.delete(0,END)
+numeroDetener.insert(0,1000)
+
+
 
 ######FRAME CONTROLES########
     ## BOTON INICIAR
-iniciar = Button(frameControles, text="Iniciar", command=iniciar, width=7, height=3)
-iniciar.grid(row=0,column=0)
+iniciar2 = Button(frameControles, text="Iniciar", command=iniciar, width=7, height=3)
+iniciar2.grid(row=0,column=0)
     ##BOTON DETENER
 finalizar = Button(frameControles, text="Detener", command=switchoff, width=7, height=3)
 finalizar.grid(row=0,column=2)
+    ##BUSCAR RANGO
+# buscarRango2 = Button(frameControles, text="Buscar Rango", command=buscarRango, width=7, height=3)
+# buscarRango2.grid(row=0,column=3)
 
 ##### FRAME OPCIONES #######
     ## CHECKBOX
@@ -430,7 +604,7 @@ labelInvervalo.grid(row=0,column=1)
 itera = Entry(frameOpciones)
 itera.grid(row=0,column=2)
 itera.delete(0,END)
-itera.insert(0,30)
+itera.insert(0,10)
     ## NUMERO DE INTERVALOS
 labelSegundos=Label(frameOpciones,text="S")
 labelSegundos.grid(row=1,column=1)
