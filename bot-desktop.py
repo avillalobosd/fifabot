@@ -16,16 +16,16 @@ import win32clipboard
 from PIL import Image
 switch = True  
 os.system('clear')
-import pyrebase
+# import pyrebase
 
-config = {
-  "apiKey": "AIzaSyCO09JciLlqV3N4K7hV90qK_8XBvGBaCLI",
-  "authDomain": "fifabot-e4c0b.firebaseapp.com",
-  "databaseURL": "https://fifabot-e4c0b.firebaseio.com",
-  "storageBucket": "fifabot-e4c0b.appspot.com"
-}
-firebase = pyrebase.initialize_app(config)
-db = firebase.database()
+# config = {
+#   "apiKey": "AIzaSyCO09JciLlqV3N4K7hV90qK_8XBvGBaCLI",
+#   "authDomain": "fifabot-e4c0b.firebaseapp.com",
+#   "databaseURL": "https://fifabot-e4c0b.firebaseio.com",
+#   "storageBucket": "fifabot-e4c0b.appspot.com"
+# }
+# firebase = pyrebase.initialize_app(config)
+# db = firebase.database()
 
 
 
@@ -76,11 +76,13 @@ def disminuyeMinimoCompraYa():
         driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[2]/div[5]/div[2]/button[1]").click()
 def Mas1ClickMaximo():
     driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[2]/div[6]/div[2]/button[2]").click()
-    time.sleep(2)
+    if rapido.get()==1:
+        time.sleep(2)
 
 def Menos1ClickMaximo():
     driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[2]/div[6]/div[2]/button[1]").click()
-    time.sleep(2)
+    if rapido.get()==1:
+        time.sleep(2)
 aumento=0
 
 def buscarRango():
@@ -89,8 +91,13 @@ def buscarRango():
     aumento=0
     switchoff()
     irMercadoTransferencias()
-    Mas1ClickMaximo()
-    Mas1ClickMaximo()
+    if int(final.get())>=3000:
+        Mas1ClickMaximo()
+        Mas1ClickMaximo()
+        Mas1ClickMaximo()
+    else:
+        Mas1ClickMaximo()
+        Mas1ClickMaximo()
     clickBuscar()
     time.sleep(3)
     global count
@@ -115,8 +122,8 @@ def buscarRango():
             clickBuscar()
             time.sleep(3)
 
-        elif count<=10 and int(driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div/section[2]/div/div/div[2]/div[1]/div/div[1]/span[2]").text[:2])>=50 :
-            print("<8 TIEMPO MAYOR A 50")
+        elif count<=10 or int(driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div/section[2]/div/div/div[2]/div[1]/div/div[1]/span[2]").text[:2])>=50 :
+            print("<10 TIEMPO MAYOR A 50")
             break
         else:
             print(count)
@@ -131,11 +138,13 @@ def buscarRango():
     print(aumento)
     actualMaximo=int(maximo.get())
     actualFinal=int(final.get())
-    if actualMaximo+int(aumento)*100>2600:
+    if actualFinal+int(aumento)*100>=3000:
         final.delete(0,END)
         final.insert(0,actualFinal+int(aumento)*100)
         maximo.delete(0,END)
         maximo.insert(0,int(final.get())-300)
+        inicial.delete(0,END)
+        inicial.insert(0,int(final.get())-100)
         enviarWhatsapp("Nuevo Rango Compra: "+str(maximo.get())+" Venta: "+final.get())
         irMercadoTransferencias()
         time.sleep(3)
@@ -147,11 +156,14 @@ def buscarRango():
     else:
         if actualMaximo+int(aumento)*100<=int(numeroDetener.get()):
             switchoff()
+            enviarWhatsapp("DETENIDO POR ALCANZAR MINIMO DE PRECIO COMPRA")
         else:
             final.delete(0,END)
             final.insert(0,actualFinal+int(aumento)*100)
             maximo.delete(0,END)
             maximo.insert(0,int(final.get())-200)
+            inicial.delete(0,END)
+            inicial.insert(0,int(final.get())-100)
             enviarWhatsapp("Nuevo Rango Compra: "+str(maximo.get())+" Venta: "+final.get())
             irMercadoTransferencias()
             time.sleep(3)
@@ -208,6 +220,7 @@ def definirPrecio():
         maximo.click()
         time.sleep(2)
         maximo.send_keys(final.get())
+        time.sleep(1)
         #CLICK EN PONER EN EL MERCADO
         driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div/section[2]/div/div/div[2]/div[2]/div[2]/button").click()
     else:
@@ -233,7 +246,7 @@ def comprar():
                 saldo=driver.find_element_by_xpath("/html/body/main/section/section/div[1]/div[1]/div[1]").text
                 print(saldo)
                 enviarWhatsapp("SE COMPRO "+mWhats+" Iteracion: " + str(iteraciones))
-                time.sleep(5)
+                time.sleep(3)
                 if len(driver.find_elements_by_xpath("/html/body/main/section/section/div[2]/div/div/section[2]/div/div/div[2]/div[2]/div[1]/button")) > 0:
                     ponerMercado()
                     time.sleep(2)
@@ -428,7 +441,10 @@ def iniciar():
                     if r.get() ==2:
                         print("ESPERANDO S SEGUNDOS")
                         enviarWhatsapp("ESPERANDO "+str(segundos.get())+" SEGUNDOS")
-                        time.sleep(int(segundos.get()))
+                        if rapido.get()==1:
+                            time.sleep(int(segundos.get()))
+                        else:
+                            time.sleep(1)
                         enviarWhatsapp("REINICIADO")
                         print("REINICIANDO")
                     iteraciones=0
@@ -438,7 +454,10 @@ def iniciar():
                 else: 
                     disminuyeMinimoCompraYa()
                     espera=espera-1
-                time.sleep(int(espera))
+                if rapido.get()==1:
+                    time.sleep(int(espera))
+                else: 
+                    time.sleep(1)
                 if switch == False:  
                     break  
                 clickBuscar()
@@ -446,7 +465,8 @@ def iniciar():
                 if switch == False:  
                     break  
                 clickEncontrado()
-                time.sleep(2)
+                if rapido.get()==1:
+                    time.sleep(2)
                 if switch == False:  
                     break  
                 clickRegresar()
@@ -584,6 +604,14 @@ iniciar2.grid(row=0,column=0)
     ##BOTON DETENER
 finalizar = Button(frameControles, text="Detener", command=switchoff, width=7, height=3)
 finalizar.grid(row=0,column=2)
+
+rapido=IntVar()
+rapido.set("1")
+radioNormal=Radiobutton(frameControles, text="NORMAL", variable=rapido, value=1)
+        ## ESPERAR SEGUNDOS
+radioRapido=Radiobutton(frameControles, text="RAPIDO", variable=rapido, value=2)
+radioNormal.grid(row=0,column=3)
+radioRapido.grid(row=0,column=4)
     ##BUSCAR RANGO
 # buscarRango2 = Button(frameControles, text="Buscar Rango", command=buscarRango, width=7, height=3)
 # buscarRango2.grid(row=0,column=3)
@@ -636,6 +664,8 @@ labelMaximo=Label(frameCompraVenta,text="Precio Final")
 labelMaximo.grid(row=4,column=3)
 final = Entry(frameCompraVenta)
 final.grid(row=4,column=4)
+
+
 
 
 
