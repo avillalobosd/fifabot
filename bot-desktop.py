@@ -83,98 +83,246 @@ def Menos1ClickMaximo():
     driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[2]/div[6]/div[2]/button[1]").click()
     if rapido.get()==1:
         time.sleep(2)
-aumento=0
 
 def buscarRango():
-    print("BUSCANCO RANGO")
-    global aumento
-    aumento=0
-    switchoff()
-    irMercadoTransferencias()
-    if int(final.get())>=3000:
-        Mas1ClickMaximo()
-        Mas1ClickMaximo()
-        Mas1ClickMaximo()
-    else:
-        Mas1ClickMaximo()
-        Mas1ClickMaximo()
-    clickBuscar()
-    time.sleep(3)
-    global count
-    count = len(driver.find_elements_by_xpath("/html/body/main/section/section/div[2]/div/div/section[1]/div/ul/li"))
-    print(count)
-    while aumento!=1000:
-        count = len(driver.find_elements_by_xpath("/html/body/main/section/section/div[2]/div/div/section[1]/div/ul/li"))
-        if count ==0:
-            aumento=aumento+1
-            irMercadoTransferencias()
-            Mas1ClickMaximo()
-            clickBuscar()
-            time.sleep(3)
-            # count = len(driver.find_elements_by_xpath("/html/body/main/section/section/div[2]/div/div/section[1]/div/ul/li"))
-            print("+1 COUNT=0")
-        elif driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div/section[2]/div/div/div[2]/div[1]/div/div[1]/span[2]").text[:1]=="<":
-            print(count)
-            # print()
-            aumento=aumento-1
-            irMercadoTransferencias()
-            Menos1ClickMaximo()
-            clickBuscar()
-            time.sleep(3)
+    ##CLICK EN PRECIO MAXIMO
+    it=1000
+    precioVentaActual=int(final.get())
+    bandera=0
+    while it==1000:
+        campo=driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[2]/div[6]/div[2]/input")
+        campo.click()
+        time.sleep(2)
+        campo.send_keys(precioVentaActual)
+        time.sleep(1)
+        clickBuscar()
+        time.sleep(1)
+        if (len(driver.find_elements_by_xpath("/html/body/main/section/section/div[2]/div/div/section[1]/div/ul/li"))) ==0:
+            if bandera==0:
+                if precioVentaActual<1000:
+                    precioVentaActual=precioVentaActual+50
+                elif precioVentaActual<10000 :
+                    precioVentaActual=precioVentaActual+100
+                elif precioVentaActual<50000 :
+                    precioVentaActual=precioVentaActual+500
+                else:
+                    precioVentaActual=precioVentaActual+500
+            elif bandera==1:
+                if precioVentaActual<1000:
+                    maximo.delete(0,END)
+                    maximo.insert(0,round((int(precioVentaActual)*.95)-(int(precioVentaActual)*.20))-50)
+                    final.delete(0,END)
+                    final.insert(0,int(precioVentaActual))
+                    inicial.delete(0,END)
+                    inicial.insert(0,(int(precioVentaActual)-50))
+                elif precioVentaActual<10000 :
+                    maximo.delete(0,END)
+                    maximo.insert(0,round((int(precioVentaActual)*.95)-(int(precioVentaActual)*.05))-100)
+                    final.delete(0,END)
+                    final.insert(0,int(precioVentaActual))
+                    inicial.delete(0,END)
+                    inicial.insert(0,int(precioVentaActual)-100)
+                elif precioVentaActual<50000 :
+                    maximo.delete(0,END)
+                    maximo.insert(0,round((int(precioVentaActual)*.95)-(int(precioVentaActual)*.05))-500)
+                    final.delete(0,END)
+                    final.insert(0,int(precioVentaActual))
+                    inicial.delete(0,END)
+                    inicial.insert(0,int(precioVentaActual)-500)
+                else:
+                    maximo.delete(0,END)
+                    maximo.insert(0,round((int(precioVentaActual)*.95)-(int(precioVentaActual)*.05))-500)
+                    final.delete(0,END)
+                    final.insert(0,int(precioVentaActual))
+                    inicial.delete(0,END)
+                    inicial.insert(0,int(precioVentaActual)-500)
+                print("SI")
+                clickRegresar()
+                time.sleep(1)
+                campo=driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[2]/div[6]/div[2]/input")
+                campo.click()
+                time.sleep(2)
+                campo.send_keys(maximo.get())
+                clickBuscar()
+                time.sleep(1)
+                clickRegresar()
+                enviarWhatsapp("Nuevo Rango Compra: "+str(maximo.get())+" Venta: "+final.get())
+                break
+            
+                
 
-        elif count<=10 or int(driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div/section[2]/div/div/div[2]/div[1]/div/div[1]/span[2]").text[:2])>=50 :
-            print("<10 TIEMPO MAYOR A 50")
+        elif (len(driver.find_elements_by_xpath("/html/body/main/section/section/div[2]/div/div/section[1]/div/ul/li"))) <=4:
+            if precioVentaActual<1000:
+                maximo.delete(0,END)
+                maximo.insert(0,round((int(precioVentaActual)*.95)-(int(precioVentaActual)*.20))-50)
+                final.delete(0,END)
+                final.insert(0,int(precioVentaActual))
+                inicial.delete(0,END)
+                inicial.insert(0,(int(precioVentaActual)-50))
+            elif precioVentaActual<10000 :
+                maximo.delete(0,END)
+                maximo.insert(0,round((int(precioVentaActual)*.95)-(int(precioVentaActual)*.05))-100)
+                final.delete(0,END)
+                final.insert(0,int(precioVentaActual))
+                inicial.delete(0,END)
+                inicial.insert(0,int(precioVentaActual)-100)
+            elif precioVentaActual<50000 :
+                maximo.delete(0,END)
+                maximo.insert(0,round((int(precioVentaActual)*.95)-(int(precioVentaActual)*.05))-500)
+                final.delete(0,END)
+                final.insert(0,int(precioVentaActual))
+                inicial.delete(0,END)
+                inicial.insert(0,int(precioVentaActual)-500)
+            else:
+                maximo.delete(0,END)
+                maximo.insert(0,round((int(precioVentaActual)*.95)-(int(precioVentaActual)*.05))-500)
+                final.delete(0,END)
+                final.insert(0,int(precioVentaActual))
+                inicial.delete(0,END)
+                inicial.insert(0,int(precioVentaActual)-500)
+            print("SI")
+            clickRegresar()
+            time.sleep(1)
+            campo=driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[2]/div[6]/div[2]/input")
+            campo.click()
+            time.sleep(2)
+            campo.send_keys(maximo.get())
+            clickBuscar()
+            time.sleep(1)
+            clickRegresar()
+            enviarWhatsapp("Nuevo Rango Compra: "+str(maximo.get())+" Venta: "+final.get())
             break
         else:
-            print(count)
-            # print()
-            aumento=aumento-1
-            irMercadoTransferencias()
-            Menos1ClickMaximo()
-            clickBuscar()
-            time.sleep(3)
-            # count = len(driver.find_elements_by_xpath("/html/body/main/section/section/div[2]/div/div/section[1]/div/ul/li"))
-            print("-1 NO SE CUMPLE")
-    print(aumento)
-    actualMaximo=int(maximo.get())
-    actualFinal=int(final.get())
-    if actualFinal+int(aumento)*100>=3000:
-        final.delete(0,END)
-        final.insert(0,actualFinal+int(aumento)*100)
-        maximo.delete(0,END)
-        maximo.insert(0,int(final.get())-300)
-        inicial.delete(0,END)
-        inicial.insert(0,int(final.get())-100)
-        enviarWhatsapp("Nuevo Rango Compra: "+str(maximo.get())+" Venta: "+final.get())
-        irMercadoTransferencias()
-        time.sleep(3)
-        precioMaximoBusqueda()
-        clickBuscar()
-        switchoff()
-        time.sleep(5)
-        iniciar()
-    else:
-        if actualMaximo+int(aumento)*100<=int(numeroDetener.get()):
-            switchoff()
-            enviarWhatsapp("DETENIDO POR ALCANZAR MINIMO DE PRECIO COMPRA")
-        else:
-            final.delete(0,END)
-            final.insert(0,actualFinal+int(aumento)*100)
-            maximo.delete(0,END)
-            maximo.insert(0,int(final.get())-200)
-            inicial.delete(0,END)
-            inicial.insert(0,int(final.get())-100)
-            enviarWhatsapp("Nuevo Rango Compra: "+str(maximo.get())+" Venta: "+final.get())
-            irMercadoTransferencias()
-            time.sleep(3)
-            precioMaximoBusqueda()
-            clickBuscar()
-            switchoff()
-            time.sleep(5)
-            iniciar()
+            if precioVentaActual<1000:
+                precioVentaActual=precioVentaActual-50
+            elif precioVentaActual<10000 :
+                precioVentaActual=precioVentaActual-100
+            elif precioVentaActual<50000 :
+                precioVentaActual=precioVentaActual-500
+            else:
+                precioVentaActual=precioVentaActual-500
+            print("NO")
+            bandera=1
+        clickRegresar()
 
-def buscarRango2():
-    print(int(driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div/section[2]/div/div/div[2]/div[1]/div/div[1]/span[2]").text[:2]))
+def revisarPrecio():
+    ##CLICK EN PRECIO MAXIMO
+    it=1000
+    precioVentaActual=int(final.get())
+    bandera=0
+    while it==1000:
+        campo=driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[2]/div[6]/div[2]/input")
+        campo.click()
+        time.sleep(2)
+        campo.send_keys(precioVentaActual)
+        time.sleep(1)
+        clickBuscar()
+        time.sleep(1)
+        if (len(driver.find_elements_by_xpath("/html/body/main/section/section/div[2]/div/div/section[1]/div/ul/li"))) ==0:
+            if bandera==0:
+                if precioVentaActual<1000:
+                    precioVentaActual=precioVentaActual+50
+                elif precioVentaActual<10000 :
+                    precioVentaActual=precioVentaActual+100
+                elif precioVentaActual<50000 :
+                    precioVentaActual=precioVentaActual+500
+                else:
+                    precioVentaActual=precioVentaActual+500
+            elif bandera==1:
+                if precioVentaActual<1000:
+                    maximo.delete(0,END)
+                    maximo.insert(0,round((int(precioVentaActual)*.95)-(int(precioVentaActual)*.20))-50)
+                    final.delete(0,END)
+                    final.insert(0,int(precioVentaActual))
+                    inicial.delete(0,END)
+                    inicial.insert(0,(int(precioVentaActual)-50))
+                elif precioVentaActual<10000 :
+                    maximo.delete(0,END)
+                    maximo.insert(0,round((int(precioVentaActual)*.95)-400))
+                    final.delete(0,END)
+                    final.insert(0,int(precioVentaActual))
+                    inicial.delete(0,END)
+                    inicial.insert(0,int(precioVentaActual)-100)
+                elif precioVentaActual<50000 :
+                    maximo.delete(0,END)
+                    maximo.insert(0,round((int(precioVentaActual)*.95)-(int(precioVentaActual)*.05))-500)
+                    final.delete(0,END)
+                    final.insert(0,int(precioVentaActual))
+                    inicial.delete(0,END)
+                    inicial.insert(0,int(precioVentaActual)-500)
+                else:
+                    maximo.delete(0,END)
+                    maximo.insert(0,round((int(precioVentaActual)*.95)-(int(precioVentaActual)*.05))-500)
+                    final.delete(0,END)
+                    final.insert(0,int(precioVentaActual))
+                    inicial.delete(0,END)
+                    inicial.insert(0,int(precioVentaActual)-500)
+                print("SI")
+                clickRegresar()
+                time.sleep(1)
+                campo=driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[2]/div[6]/div[2]/input")
+                campo.click()
+                time.sleep(2)
+                campo.send_keys(maximo.get())
+                clickBuscar()
+                time.sleep(1)
+                clickRegresar()
+                break
+            
+                
+
+        elif (len(driver.find_elements_by_xpath("/html/body/main/section/section/div[2]/div/div/section[1]/div/ul/li"))) <=4:
+            if precioVentaActual<1000:
+                maximo.delete(0,END)
+                maximo.insert(0,round((int(precioVentaActual)*.95)-(int(precioVentaActual)*.20))-50)
+                final.delete(0,END)
+                final.insert(0,int(precioVentaActual))
+                inicial.delete(0,END)
+                inicial.insert(0,(int(precioVentaActual)-50))
+            elif precioVentaActual<10000 :
+                maximo.delete(0,END)
+                maximo.insert(0,round((int(precioVentaActual)*.95)-(int(precioVentaActual)*.05))-100)
+                final.delete(0,END)
+                final.insert(0,int(precioVentaActual))
+                inicial.delete(0,END)
+                inicial.insert(0,int(precioVentaActual)-100)
+            elif precioVentaActual<50000 :
+                maximo.delete(0,END)
+                maximo.insert(0,round((int(precioVentaActual)*.95)-400))
+                final.delete(0,END)
+                final.insert(0,int(precioVentaActual))
+                inicial.delete(0,END)
+                inicial.insert(0,int(precioVentaActual)-500)
+            else:
+                maximo.delete(0,END)
+                maximo.insert(0,round((int(precioVentaActual)*.95)-(int(precioVentaActual)*.05))-500)
+                final.delete(0,END)
+                final.insert(0,int(precioVentaActual))
+                inicial.delete(0,END)
+                inicial.insert(0,int(precioVentaActual)-500)
+            print("SI")
+            clickRegresar()
+            time.sleep(1)
+            campo=driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[2]/div[6]/div[2]/input")
+            campo.click()
+            time.sleep(2)
+            campo.send_keys(maximo.get())
+            clickBuscar()
+            time.sleep(1)
+            clickRegresar()
+            break
+        else:
+            if precioVentaActual<1000:
+                precioVentaActual=precioVentaActual-50
+            elif precioVentaActual<10000 :
+                precioVentaActual=precioVentaActual-100
+            elif precioVentaActual<50000 :
+                precioVentaActual=precioVentaActual-500
+            else:
+                precioVentaActual=precioVentaActual-500
+            print("NO")
+            bandera=1
+        clickRegresar()
 
 
 #######################################################################
@@ -372,7 +520,7 @@ print(saldo)
 
 root = Tk()
 root.title('FIFA BOT')
-root.geometry("800x600")
+root.geometry("450x600")
 ##DETENER PROCESO
 def stop():
     print("STOP")
@@ -536,17 +684,17 @@ def switchoff():
 
 #### FRAMES PRINCIPALES ####
     ### IZQUIERDA
-frame1 = LabelFrame(root, pady=10)
-frame1.place(x=0, y=0, anchor="nw", width=450)
+frame1 = LabelFrame(root)
+frame1.place(x=0, y=100, anchor="c",relx=.5)
     ### DERECHA
 frame2 = LabelFrame(root)
-frame2.place(x=460, y=0, anchor="nw")
+frame2.place(x=0, y=340, anchor="c",relx=.5)
 
 #### FRAMES SECUNDARIOS
     ### EN FRAME 1
-frameControles = LabelFrame(frame1, text="CONTROLES", padx=150, pady=5)
+frameControles = LabelFrame(frame1, text="CONTROLES")
 frameControles.grid(row=0,column=0)
-frameCompraVenta= LabelFrame(frame1, text="COMPRAVENTA", padx=10)
+frameCompraVenta= LabelFrame(frame1, text="COMPRAVENTA")
 frameCompraVenta.grid(row=1,column=0)
     ## EN FRAME 2
 frameOpciones = LabelFrame(frame2, text="Cada N búsquedas")
@@ -559,27 +707,19 @@ frameRango.grid(row=4,column=0)
 #### FRAME ACCIONES
     ## ENVIAR WHATSAPP
 eW=IntVar()
-eW.set("2")
-eWradio=Radiobutton(frameAcciones, text="Enviar Whatsapp eW=1", variable=eW, value=1)
-eWradio2=Radiobutton(frameAcciones, text="NO Enviar Whatsapp eW=2", variable=eW, value=2)
+eWradio=Checkbutton(frameAcciones, text="Enviar Whatsapp eW=1", variable=eW)
 eWradio.grid(sticky=W,row=0,column=0)
-eWradio2.grid(sticky=W, row=1,column=0)
+# eWradio2.grid(sticky=W, row=1,column=0)
 
     ## ENVIAR IMAGEN WHATSAPP
 eSS=IntVar()
-eSS.set("2")
-eSSradio=Radiobutton(frameAcciones, text="Enviar ScreenShot eSS=1", variable=eSS, value=1)
-eSSradio2=Radiobutton(frameAcciones, text="NO Enviar ScreenShot eSS=2", variable=eSS, value=2)
+eSSradio=Checkbutton(frameAcciones, text="Enviar ScreenShot eSS=1", variable=eSS)
 eSSradio.grid(sticky=W,row=2,column=0)
-eSSradio2.grid(sticky=W, row=3,column=0)
 
 #### FRAME RANGO
 eR=IntVar()
-eR.set("1")
-eRango=Radiobutton(frameRango, text="Buscar Rango eR=1", variable=eR, value=1)
-eRango2=Radiobutton(frameRango, text="NO Buscar Rango eR=2", variable=eR, value=2)
+eRango=Checkbutton(frameRango, text="Buscar Rango eR=1", variable=eR)
 eRango.grid(sticky=W,row=1,column=0)
-eRango2.grid(sticky=W, row=2,column=0)
 
 rangoLabel=Label(frameRango,text="Cada __ busquedas")
 rangoLabel.grid(row=3,column=0)
@@ -604,17 +744,20 @@ iniciar2.grid(row=0,column=0)
     ##BOTON DETENER
 finalizar = Button(frameControles, text="Detener", command=switchoff, width=7, height=3)
 finalizar.grid(row=0,column=2)
+    ##BOTON PRUEBA
+botonPrueba = Button(frameControles, text="Revisar Precio", command=revisarPrecio, width=7, height=3)
+botonPrueba.grid(row=0,column=5)
 
+
+  ### RAPIDO LENTO
 rapido=IntVar()
 rapido.set("1")
 radioNormal=Radiobutton(frameControles, text="NORMAL", variable=rapido, value=1)
-        ## ESPERAR SEGUNDOS
 radioRapido=Radiobutton(frameControles, text="RAPIDO", variable=rapido, value=2)
 radioNormal.grid(row=0,column=3)
 radioRapido.grid(row=0,column=4)
-    ##BUSCAR RANGO
-# buscarRango2 = Button(frameControles, text="Buscar Rango", command=buscarRango, width=7, height=3)
-# buscarRango2.grid(row=0,column=3)
+
+
 
 ##### FRAME OPCIONES #######
     ## CHECKBOX
@@ -647,7 +790,7 @@ segundos.insert(0,45)
 Compra=Label(frameCompraVenta,text="COMPRAS")
 Compra.grid(row=1,column=2)
     #### PRECIO COMPRA
-labelMaximo=Label(frameCompraVenta,text="Precio Compra")
+labelMaximo=Label(frameCompraVenta,text="Precio Compra 'maximo'")
 labelMaximo.grid(row=2,column=0)
 maximo = Entry(frameCompraVenta)
 maximo.grid(row=2,column=2)
@@ -655,15 +798,15 @@ maximo.grid(row=2,column=2)
 Venta=Label(frameCompraVenta,text="VENTA")
 Venta.grid(row=3,column=2)
     ### PRECIO INICIAL
-labelMinimo=Label(frameCompraVenta,text="Precio Inicial")
+labelMinimo=Label(frameCompraVenta,text="Precio Inicial 'inicial'")
 labelMinimo.grid(row=4,column=0)
 inicial = Entry(frameCompraVenta)
 inicial.grid(row=4,column=2)
     ### PRECIO FINAL
-labelMaximo=Label(frameCompraVenta,text="Precio Final")
-labelMaximo.grid(row=4,column=3)
+labelMaximo=Label(frameCompraVenta,text="Precio Final 'final'")
+labelMaximo.grid(row=5,column=0)
 final = Entry(frameCompraVenta)
-final.grid(row=4,column=4)
+final.grid(row=5,column=2)
 
 
 
