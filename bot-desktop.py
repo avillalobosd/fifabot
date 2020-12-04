@@ -231,28 +231,28 @@ def revisarPrecio():
             elif bandera==1:
                 if precioVentaActual<1000:
                     maximo.delete(0,END)
-                    maximo.insert(0,round((int(precioVentaActual)*.95)-(int(precioVentaActual)*.20))-50)
+                    maximo.insert(0,round((int(precioVentaActual)*.95))-int(iEsperada.get()))
                     final.delete(0,END)
                     final.insert(0,int(precioVentaActual))
                     inicial.delete(0,END)
                     inicial.insert(0,(int(precioVentaActual)-50))
                 elif precioVentaActual<10000 :
                     maximo.delete(0,END)
-                    maximo.insert(0,round((int(precioVentaActual)*.95)-400))
+                    maximo.insert(0,round((int(precioVentaActual)*.95)-int(iEsperada.get())))
                     final.delete(0,END)
                     final.insert(0,int(precioVentaActual))
                     inicial.delete(0,END)
                     inicial.insert(0,int(precioVentaActual)-100)
                 elif precioVentaActual<50000 :
                     maximo.delete(0,END)
-                    maximo.insert(0,round((int(precioVentaActual)*.95)-(int(precioVentaActual)*.05))-500)
+                    maximo.insert(0,round((int(precioVentaActual)*.95))-int(iEsperada.get()))
                     final.delete(0,END)
                     final.insert(0,int(precioVentaActual))
                     inicial.delete(0,END)
                     inicial.insert(0,int(precioVentaActual)-500)
                 else:
                     maximo.delete(0,END)
-                    maximo.insert(0,round((int(precioVentaActual)*.95)-(int(precioVentaActual)*.05))-500)
+                    maximo.insert(0,round((int(precioVentaActual)*.95))-int(iEsperada.get()))
                     final.delete(0,END)
                     final.insert(0,int(precioVentaActual))
                     inicial.delete(0,END)
@@ -274,28 +274,28 @@ def revisarPrecio():
         elif (len(driver.find_elements_by_xpath("/html/body/main/section/section/div[2]/div/div/section[1]/div/ul/li"))) <=4:
             if precioVentaActual<1000:
                 maximo.delete(0,END)
-                maximo.insert(0,round((int(precioVentaActual)*.95)-(int(precioVentaActual)*.20))-50)
+                maximo.insert(0,round((int(precioVentaActual)*.95))-int(iEsperada.get()))
                 final.delete(0,END)
                 final.insert(0,int(precioVentaActual))
                 inicial.delete(0,END)
                 inicial.insert(0,(int(precioVentaActual)-50))
             elif precioVentaActual<10000 :
                 maximo.delete(0,END)
-                maximo.insert(0,round((int(precioVentaActual)*.95)-(int(precioVentaActual)*.05))-100)
+                maximo.insert(0,round((int(precioVentaActual)*.95))-int(iEsperada.get()))
                 final.delete(0,END)
                 final.insert(0,int(precioVentaActual))
                 inicial.delete(0,END)
                 inicial.insert(0,int(precioVentaActual)-100)
             elif precioVentaActual<50000 :
                 maximo.delete(0,END)
-                maximo.insert(0,round((int(precioVentaActual)*.95)-400))
+                maximo.insert(0,round((int(precioVentaActual)*.95))-int(iEsperada.get()))
                 final.delete(0,END)
                 final.insert(0,int(precioVentaActual))
                 inicial.delete(0,END)
                 inicial.insert(0,int(precioVentaActual)-500)
             else:
                 maximo.delete(0,END)
-                maximo.insert(0,round((int(precioVentaActual)*.95)-(int(precioVentaActual)*.05))-500)
+                maximo.insert(0,round((int(precioVentaActual)*.95))-int(iEsperada.get()))
                 final.delete(0,END)
                 final.insert(0,int(precioVentaActual))
                 inicial.delete(0,END)
@@ -571,9 +571,9 @@ def iniciar():
                     if int(cuantos) % int(numeroRango.get())==0: 
                         enviarWhatsapp("Van "+str(cuantos))
                         enviarWhatsapp("Calculando Rango")
-                        buscarRango()    
+                        revisarPrecio()    
                         saldo=driver.find_element_by_xpath("/html/body/main/section/section/div[1]/div[1]/div[1]").text
-                        enviarWhatsapp(saldo)
+                        # enviarWhatsapp(saldo)
                 if cuantos==10000:
                     break
 
@@ -807,6 +807,15 @@ labelMaximo=Label(frameCompraVenta,text="Precio Final 'final'")
 labelMaximo.grid(row=5,column=0)
 final = Entry(frameCompraVenta)
 final.grid(row=5,column=2)
+    ### GANANCIA REAL
+GReal=Label(frameCompraVenta,text="GANANCIA REAL 'iReal'")
+GReal.grid(row=1,column=4)
+iReal = Entry(frameCompraVenta)
+iReal.grid(row=2,column=4)
+GEsperada=Label(frameCompraVenta,text="GANANCIA ESPERADA 'iEsperada'")
+GEsperada.grid(row=3,column=4)
+iEsperada = Entry(frameCompraVenta)
+iEsperada.grid(row=4,column=4)
 
 
 
