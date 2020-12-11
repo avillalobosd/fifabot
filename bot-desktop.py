@@ -16,22 +16,18 @@ import win32clipboard
 from PIL import Image
 switch = True  
 os.system('clear')
-# import pyrebase
+# from firebase import Firebase
+import pyrebase
+# from Crypto.PublicKey import RSA
 
-# config = {
-#   "apiKey": "AIzaSyCO09JciLlqV3N4K7hV90qK_8XBvGBaCLI",
-#   "authDomain": "fifabot-e4c0b.firebaseapp.com",
-#   "databaseURL": "https://fifabot-e4c0b.firebaseio.com",
-#   "storageBucket": "fifabot-e4c0b.appspot.com"
-# }
-# firebase = pyrebase.initialize_app(config)
-# db = firebase.database()
-
-
-
-
-
-
+config = {
+  "apiKey": "AIzaSyCO09JciLlqV3N4K7hV90qK_8XBvGBaCLI",
+  "authDomain": "fifabot-e4c0b.firebaseapp.com",
+  "databaseURL": "https://fifabot-e4c0b.firebaseio.com",
+  "storageBucket": "fifabot-e4c0b.appspot.com"
+}
+firebase = pyrebase.initialize_app(config)
+db = firebase.database()
 
 #### CONGIRUACION PANTALLA DE WEB APP
 opts = Options()
@@ -472,6 +468,18 @@ def enviarImagenWhatsapp():
 ##TOMA UN SCREENSHOT DE LA PANTALLA Y GUARDARLA EN EL CLIPBOARD
 def enviarScreenshot():
     # if SSVar.get()==1:
+    if eSS.get() ==1:
+        driver.save_screenshot("screenshot.png");
+        filepath = 'screenshot.png'
+        image = Image.open(filepath)
+        output = BytesIO()
+        image.convert("RGB").save(output, "BMP")
+        data = output.getvalue()[14:]
+        output.close()
+        send_to_clipboard(win32clipboard.CF_DIB, data)
+        enviarImagenWhatsapp()
+
+def enviarSSControlRemoto():
     driver.save_screenshot("screenshot.png");
     filepath = 'screenshot.png'
     image = Image.open(filepath)
@@ -480,8 +488,13 @@ def enviarScreenshot():
     data = output.getvalue()[14:]
     output.close()
     send_to_clipboard(win32clipboard.CF_DIB, data)
-    enviarImagenWhatsapp()
-
+    posicionar=driverWhatsapp.find_element_by_xpath("//*[@id='main']/footer/div[1]/div[2]/div/div[2]")
+    posicionar.click()
+    posicionar.send_keys(Keys.CONTROL, 'v') #paste
+    time.sleep(3)
+    botonEnviar=driverWhatsapp.find_element_by_xpath("//*[@id='app']/div/div/div[2]/div[2]/span/div/span/div/div/div[2]/span/div/div")
+    botonEnviar.click()
+    print("IMAGEN ENVIADA CONTROL REMOTO")
 
 def send_to_clipboard(clip_type, data):
     win32clipboard.OpenClipboard()
@@ -654,22 +667,89 @@ def switchoff():
     print ("switch off")
     global switch  
     switch = False  
+    # my_stream.close()
     # tablaLog.insert(parent="",index="end",text="parent",values=("Apagado") )
 
 
 ############### CONTROL REMOTO #####################
 
 
-# def stream_handler(message):
-#     command=message['data']['comando']
-#     if command=='STOP':
-#         switchoff()
+def stream_handler(message):
+    print(message['data'])
+    if message['data']=="DETENER":
+        switchoff()
+    if message['data']=="INICIAR":
+        iniciar()
+    if message['data']=="SCREENSHOT":
+        enviarSSControlRemoto()
+    
+    # print(message['data']['comando']) # put
 
-#     print(message['data']['comando']) # put
-
-# my_stream = db.child("comando").stream(stream_handler)
+my_stream = db.child("comando").stream(stream_handler)
 
 
+def close_window():
+    switchoff()
+    my_stream.close()
+    root.destroy()
+
+
+def reLogin():
+    boton = driver.find_element_by_xpath("/html/body/div[4]/section/div/div/button/span[1]")
+    boton.click()
+    time.sleep(10)
+    boton2 = driver.find_element_by_xpath('//*[@id="Login"]/div/div/button[1]')
+    boton2.click()
+    time.sleep(10)
+    boton3 = driver.find_element_by_xpath('//*[@id="btnLogin"]/span/span')
+    boton3.click()
+
+def selecciones():
+    ##LIGA
+    liga=driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[7]/div/div")
+    liga.click()
+    time.sleep(1)
+    contieneLiga=driver.find_element_by_xpath('/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[7]/div/ul/li[contains(.,"'+ligaClicked.get()+'")]')
+    contieneLiga.click()
+    ##CLUB
+    time.sleep(1)
+    club=driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[8]/div/div")
+    club.click()
+    time.sleep(1)
+    contieneClub=driver.find_element_by_xpath('/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[8]/div/ul/li[contains(.,"'+clubEntry.get()+'")]')
+    contieneClub.click()
+    ##CALIDAD
+    time.sleep(1)
+    calidad=driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[2]/div/div")
+    calidad.click()
+    time.sleep(1)
+    contieneCalidad=driver.find_element_by_xpath('/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[2]/div/ul/li[contains(.,"'+calidadClicked.get()+'")]')
+    contieneCalidad.click()
+    ##TIPO
+    time.sleep(1)
+    tipo=driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[3]/div/div")
+    tipo.click()
+    time.sleep(1)
+    contieneTipo=driver.find_element_by_xpath('/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[3]/div/ul/li[contains(.,"'+tipoClicked.get()+'")]')
+    contieneTipo.click()
+    ##POSICION
+    time.sleep(1)
+    posicion=driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[4]/div/div")
+    posicion.click()
+    time.sleep(1)
+    posicionTipo=driver.find_element_by_xpath('/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[4]/div/ul/li[contains(.,"'+posicionClicked.get()+'")]')
+    posicionTipo.click()
+
+
+
+
+def prueba():
+
+    # print(contiene.text())
+
+    contiene=driver.find_elements_by_xpath('/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[8]/div/ul')
+    for i in contiene:
+        print(i.text)
 
 
 
@@ -686,9 +766,12 @@ def switchoff():
     ### IZQUIERDA
 frame1 = LabelFrame(root)
 frame1.place(x=0, y=100, anchor="c",relx=.5)
-    ### DERECHA
+    ### ABAJO
 frame2 = LabelFrame(root)
 frame2.place(x=0, y=340, anchor="c",relx=.5)
+    ### DERECHA
+frame3 = LabelFrame(root)
+frame3.place(x=0, y=530, anchor="c",relx=.5)
 
 #### FRAMES SECUNDARIOS
     ### EN FRAME 1
@@ -703,6 +786,40 @@ frameAcciones = LabelFrame(frame2, text="Acciones")
 frameAcciones.grid(row=2,column=0)
 frameRango = LabelFrame(frame2, text="Buscar Cambio de Precios")
 frameRango.grid(row=4,column=0)
+
+#### FRAME SELECCIONES
+
+##LIGA
+ligaClicked=StringVar()
+ligaClicked.set("Ninguno")
+liga= OptionMenu(frame3, ligaClicked,"Ninguno","Ligue 1 Uber Eats (FRA 1)","Ligue 2 BKT (FRA 2)","Serie A TIM (ITA 1)","Calcio B (ITA 2)","LaLiga Santander (ESP 1)","LaLiga SmartBank (ESP 2)","1A Pro League (BEL 1)","3. Liga (ALE 3)","3F Superliga (DIN 1)","A-League (AUS 1)","Allsvenskan (SUE 1)","Bundesliga (ALE 1)","Bundesliga 2 (ALE 2)","Česká Liga (RCH 1)","CSL (CHN 1)","EFL Championship (ING 2)","EFL League One (ING 3)","EFL League Two (ING 4)","Eliteserien (NOR 1)","Eredivisie (HOL 1)","Finnliiga (FIN 1)","Hellas Liga (GRE 1)","Iconos (ICN)","K League 1 (COR 1)","Libertadores (LIB)","LIGA BBVA MX (MEX 1)","Liga do Brasil (BRA 1)","Liga Hrvatska (CRO 1)","Liga I (RUM 1)","Liga NOS (POR 1)","Liga rusa (RUS 1)","Liga Ucraniana (UCR 1)","MBS Pro League (SAU 1)","Meiji Yasuda J1 (JPN 1)","MLS (MLS)","PKO Ekstraklasa (POL 1)","Premier League (ING 1)","Primera División (ARG 1)","RSL (SUI 1)","Scottish Prem (SPFL)","Selección Masc. (INT)","South African FL (RSA 1)","SSE Airtricity Lge (IRL 1)","Sudamericana (SUD)","Süper Lig (TUR 1)","United Emirates League (EAU 1)","Ö. Bundesliga (AUT 1)")
+liga.grid(row=0,column=0)
+##CLUB
+clubLabel=Label(frame3,text="CLUB")
+clubLabel.grid(row=0,column=1)
+clubEntry = Entry(frame3)
+clubEntry.grid(row=0,column=2)
+##CALIDAD
+calidadClicked=StringVar()
+calidadClicked.set("Ninguno")
+calidad= OptionMenu(frame3, calidadClicked,"Ninguno","Oro","Plata","Bronce","Especial")
+calidad.grid(row=1,column=0)
+##TIPO
+tipoClicked=StringVar()
+tipoClicked.set("Ninguno")
+tipo= OptionMenu(frame3, tipoClicked,"Comunes","Únicos","Comun de la UCL","CONMEBOL LIBERTADORES","CONMEBOL SUDAMERICANA","Icono","Promesas","Único de la UCL")
+tipo.grid(row=1,column=1)
+##POSICION
+posicionClicked=StringVar()
+posicionClicked.set("Ninguno")
+posicion= OptionMenu(frame3, posicionClicked,"POR","CAD","LD","DFC","LI","CAI","MCD","MD","MC","MI","MCO","SDD","SD","SDI","ED","DC","EI")
+posicion.grid(row=1,column=2)
+
+botonPrueba = Button(frame3, text="Selecciones", command=selecciones, width=7, height=3)
+botonPrueba.grid(row=4,column=0)
+
+
+
 
 #### FRAME ACCIONES
     ## ENVIAR WHATSAPP
@@ -745,8 +862,13 @@ iniciar2.grid(row=0,column=0)
 finalizar = Button(frameControles, text="Detener", command=switchoff, width=7, height=3)
 finalizar.grid(row=0,column=2)
     ##BOTON PRUEBA
-botonPrueba = Button(frameControles, text="Revisar Precio", command=revisarPrecio, width=7, height=3)
-botonPrueba.grid(row=0,column=5)
+botonRevisarPrecio = Button(frameControles, text="Revisar Precio", command=revisarPrecio, width=7, height=3)
+botonRevisarPrecio.grid(row=0,column=5)
+
+botonPrueba = Button(frameControles, text="PRUEBA", command=reLogin, width=7, height=3)
+botonPrueba.grid(row=0,column=6)
+
+
 
 
   ### RAPIDO LENTO
@@ -820,5 +942,5 @@ iEsperada.grid(row=4,column=4)
 
 
 
-
+root.protocol("WM_DELETE_WINDOW", close_window)
 root.mainloop()
