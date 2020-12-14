@@ -28,6 +28,7 @@ config = {
 }
 firebase = pyrebase.initialize_app(config)
 db = firebase.database()
+db.update({"comando":"OK"})
 
 #### CONGIRUACION PANTALLA DE WEB APP
 opts = Options()
@@ -430,7 +431,9 @@ def limpiarvendidos():
     
     
 def irMercadoTransferencias():
-    driver.find_element_by_xpath("/html/body/main/section/nav/button[3]/span").click()
+    boton= driver.find_element_by_xpath("/html/body/main/section/nav/button[3]")
+    boton.click()
+    # driver.find_element_by_xpath("/html/body/main/section/nav/button[3]").click()
     time.sleep(5)
     driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div/div[2]/div[2]").click()
 
@@ -445,6 +448,9 @@ def irMercadoTransferencias():
 ## ENVIAR WHATSAPP
 def enviarWhatsapp(mensaje):
     if eW.get()== 1:
+        chat=driverWhatsapp.find_element_by_xpath('//*[@id="pane-side"]/div[1]/div/div/div/div/div/div[2]/div[2]/div[1]/span/span')
+        chat.click()
+        time.sleep(1)
         posicionar=driverWhatsapp.find_element_by_xpath("//*[@id='main']/footer/div[1]/div[2]/div/div[2]")
         posicionar.click()
         time.sleep(2)
@@ -457,6 +463,9 @@ def enviarWhatsapp(mensaje):
 
 def enviarImagenWhatsapp():
     if eSS.get() ==1:
+        chat=driverWhatsapp.find_element_by_xpath('//*[@id="pane-side"]/div[1]/div/div/div/div/div/div[2]/div[2]/div[1]/span/span')
+        chat.click()
+        time.sleep(1)
         posicionar=driverWhatsapp.find_element_by_xpath("//*[@id='main']/footer/div[1]/div[2]/div/div[2]")
         posicionar.click()
         posicionar.send_keys(Keys.CONTROL, 'v') #paste
@@ -527,13 +536,13 @@ def detener():
 ####################################################################### 
 
 ## IMPRIME LAS MONEDAS ACTUALES
-saldo=driver.find_element_by_xpath("/html/body/main/section/section/div[1]/div[1]/div[1]").text
-print(saldo)
+# saldo=driver.find_element_by_xpath("/html/body/main/section/section/div[1]/div[1]/div[1]").text
+# print(saldo)
 # tablaLog.insert(parent="",index="end",text="parent",values=("SaldoActual:"+saldo))
 
 root = Tk()
 root.title('FIFA BOT')
-root.geometry("450x600")
+root.geometry("600x700")
 ##DETENER PROCESO
 def stop():
     print("STOP")
@@ -677,11 +686,17 @@ def switchoff():
 def stream_handler(message):
     print(message['data'])
     if message['data']=="DETENER":
+        db.update({"comando":"OK"})
         switchoff()
     if message['data']=="INICIAR":
+        db.update({"comando":"OK"})
         iniciar()
     if message['data']=="SCREENSHOT":
+        db.update({"comando":"OK"})
         enviarSSControlRemoto()
+    if message['data']=="RELOGIN":
+        db.update({"comando":"OK"})
+        reLogin()
     
     # print(message['data']['comando']) # put
 
@@ -695,61 +710,161 @@ def close_window():
 
 
 def reLogin():
+    enviarWhatsapp("EMPEZARON RELOGIN")
     boton = driver.find_element_by_xpath("/html/body/div[4]/section/div/div/button/span[1]")
     boton.click()
     time.sleep(10)
+    enviarWhatsapp("CLICK A LOGIN")
     boton2 = driver.find_element_by_xpath('//*[@id="Login"]/div/div/button[1]')
     boton2.click()
     time.sleep(10)
+    enviarWhatsapp("INTRODUCIENDO PASSWORD")
+    input=driver.find_element_by_xpath('//*[@id="password"]')
+    input.click()
+    time.sleep(2)
+    input.send_keys(Keys.CONTROL, 'a') #
+    time.sleep(1)
+    input.send_keys(Keys.DELETE) #
+    time.sleep(1)
+    input.send_keys("Warewolf10") #
+    time.sleep(1)
+    enviarWhatsapp("CLICK A ACEPTAR LOGIN")
     boton3 = driver.find_element_by_xpath('//*[@id="btnLogin"]/span/span')
     boton3.click()
+    time.sleep(15)
+    enviarWhatsapp("IR A MERCADO DE TRANSFERENCIAS")
+    irMercadoTransferencias()
+    time.sleep(5)
+    enviarWhatsapp("INTRODUCIR FILTROS")
+    selecciones()
+    time.sleep(5)
+    enviarWhatsapp("REVISAR RANGO DE PRECIO")
+    revisarPrecio()
+    enviarWhatsapp("ENVIAR SCREENSHOT")
+    enviarSSControlRemoto()
 
 def selecciones():
     ##LIGA
-    liga=driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[7]/div/div")
-    liga.click()
-    time.sleep(1)
-    contieneLiga=driver.find_element_by_xpath('/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[7]/div/ul/li[contains(.,"'+ligaClicked.get()+'")]')
-    contieneLiga.click()
+    if(ligaClicked.get()=="Ninguno"):
+        liga=driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[7]/div/div")
+        liga.click()
+        time.sleep(1)
+        contieneLiga=driver.find_element_by_xpath('/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[7]/div/ul/li[2]')
+        contieneLiga.click()
+        time.sleep(1)
+        quitarLiga=driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[7]/div/div/button")
+        quitarLiga.click()
+        print("NO LIGA")
+    else:
+        liga=driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[7]/div/div")
+        liga.click()
+        time.sleep(1)
+        contieneLiga=driver.find_element_by_xpath('/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[7]/div/ul/li[contains(.,"'+ligaClicked.get()+'")]')
+        contieneLiga.click()
     ##CLUB
-    time.sleep(1)
-    club=driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[8]/div/div")
-    club.click()
-    time.sleep(1)
-    contieneClub=driver.find_element_by_xpath('/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[8]/div/ul/li[contains(.,"'+clubEntry.get()+'")]')
-    contieneClub.click()
+    if(clubEntry.get()==""):
+        time.sleep(1)
+        club=driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[8]/div/div")
+        club.click()
+        time.sleep(1)
+        contieneClub=driver.find_element_by_xpath('/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[8]/div/ul/li[2]')
+        contieneClub.click()
+        time.sleep(1)
+        quitar=driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[8]/div/div/button")
+        quitar.click()
+        print("NO CLUB")
+    else:
+        time.sleep(1)
+        club=driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[8]/div/div")
+        club.click()
+        time.sleep(1)
+        contieneClub=driver.find_element_by_xpath('/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[8]/div/ul/li[contains(.,"'+clubEntry.get()+'")]')
+        contieneClub.click()
     ##CALIDAD
-    time.sleep(1)
-    calidad=driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[2]/div/div")
-    calidad.click()
-    time.sleep(1)
-    contieneCalidad=driver.find_element_by_xpath('/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[2]/div/ul/li[contains(.,"'+calidadClicked.get()+'")]')
-    contieneCalidad.click()
+    if(calidadClicked.get()=="Ninguno"):
+        time.sleep(1)
+        calidad=driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[2]/div/div")
+        calidad.click()
+        time.sleep(1)
+        contieneCalidad=driver.find_element_by_xpath('/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[2]/div/ul/li[2]')
+        contieneCalidad.click()
+        time.sleep(1)
+        quitar=driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[2]/div/div/button")
+        quitar.click()
+        print("NO CALIDAD")
+    else:
+        time.sleep(1)
+        calidad=driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[2]/div/div")
+        calidad.click()
+        time.sleep(1)
+        contieneCalidad=driver.find_element_by_xpath('/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[2]/div/ul/li[contains(.,"'+calidadClicked.get()+'")]')
+        contieneCalidad.click()
     ##TIPO
-    time.sleep(1)
-    tipo=driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[3]/div/div")
-    tipo.click()
-    time.sleep(1)
-    contieneTipo=driver.find_element_by_xpath('/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[3]/div/ul/li[contains(.,"'+tipoClicked.get()+'")]')
-    contieneTipo.click()
-    ##POSICION
-    time.sleep(1)
-    posicion=driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[4]/div/div")
-    posicion.click()
-    time.sleep(1)
-    posicionTipo=driver.find_element_by_xpath('/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[4]/div/ul/li[contains(.,"'+posicionClicked.get()+'")]')
-    posicionTipo.click()
+    if(tipoClicked.get()=="Ninguno"):
+        time.sleep(1)
+        tipo=driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[3]/div/div")
+        tipo.click()
+        time.sleep(1)
+        contieneTipo=driver.find_element_by_xpath('/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[3]/div/ul/li[2]')
+        contieneTipo.click()
+        time.sleep(1)
+        quitar=driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[3]/div/div/button")
+        quitar.click()
+        print("NO TIPO")
+    else:
+        time.sleep(1)
+        tipo=driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[3]/div/div")
+        tipo.click()
+        time.sleep(1)
+        contieneTipo=driver.find_element_by_xpath('/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[3]/div/ul/li[contains(.,"'+tipoClicked.get()+'")]')
+        contieneTipo.click()
 
+
+
+    ##POSICION
+    if(posicionClicked.get()=="Ninguno"):
+        time.sleep(1)
+        posicion=driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[4]/div/div")
+        posicion.click()
+        time.sleep(1)
+        posicionTipo=driver.find_element_by_xpath('/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[4]/div/ul/li[2]')
+        posicionTipo.click()
+        time.sleep(1)
+        quitar=driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[4]/div/div/button")
+        quitar.click()
+        print("NO POSICION")
+    else:
+        time.sleep(1)
+        posicion=driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[4]/div/div")
+        posicion.click()
+        time.sleep(1)
+        posicionTipo=driver.find_element_by_xpath('/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[4]/div/ul/li[contains(.,"'+posicionClicked.get()+'")]')
+        posicionTipo.click()
+    ##PAIS
+    if(nacionalidadEntry.get()==""):
+        time.sleep(1)
+        pais=driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[6]/div/div")
+        pais.click()
+        time.sleep(1)
+        contienePais=driver.find_element_by_xpath('/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[6]/div/ul/li[2]')
+        contienePais.click()
+        time.sleep(1)
+        quitar=driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[6]/div/div/button")
+        quitar.click()
+        print("NO NACIONALIDAD")
+    else:
+        time.sleep(1)
+        pais=driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[6]/div/div")
+        pais.click()
+        time.sleep(1)
+        contienePais=driver.find_element_by_xpath('/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[6]/div/ul/li[contains(.,"'+nacionalidadEntry.get()+'")]')
+        contienePais.click()
 
 
 
 def prueba():
-
-    # print(contiene.text())
-
-    contiene=driver.find_elements_by_xpath('/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[8]/div/ul')
-    for i in contiene:
-        print(i.text)
+    db.update({"comando":"OK"})
+    
 
 
 
@@ -765,13 +880,15 @@ def prueba():
 #### FRAMES PRINCIPALES ####
     ### IZQUIERDA
 frame1 = LabelFrame(root)
-frame1.place(x=0, y=100, anchor="c",relx=.5)
+frame1.place(x=0, y=110, anchor="c",relx=.5)
     ### ABAJO
-frame2 = LabelFrame(root)
-frame2.place(x=0, y=340, anchor="c",relx=.5)
-    ### DERECHA
 frame3 = LabelFrame(root)
-frame3.place(x=0, y=530, anchor="c",relx=.5)
+frame3.place(x=0, y=300, anchor="c",relx=.5)
+
+frame2 = LabelFrame(root)
+frame2.place(x=0, y=520, anchor="c",relx=.5)
+    ### DERECHA
+
 
 #### FRAMES SECUNDARIOS
     ### EN FRAME 1
@@ -790,33 +907,52 @@ frameRango.grid(row=4,column=0)
 #### FRAME SELECCIONES
 
 ##LIGA
+ligaLabel=Label(frame3,text="LIGA")
+ligaLabel.grid(row=0,column=0)
 ligaClicked=StringVar()
 ligaClicked.set("Ninguno")
 liga= OptionMenu(frame3, ligaClicked,"Ninguno","Ligue 1 Uber Eats (FRA 1)","Ligue 2 BKT (FRA 2)","Serie A TIM (ITA 1)","Calcio B (ITA 2)","LaLiga Santander (ESP 1)","LaLiga SmartBank (ESP 2)","1A Pro League (BEL 1)","3. Liga (ALE 3)","3F Superliga (DIN 1)","A-League (AUS 1)","Allsvenskan (SUE 1)","Bundesliga (ALE 1)","Bundesliga 2 (ALE 2)","Česká Liga (RCH 1)","CSL (CHN 1)","EFL Championship (ING 2)","EFL League One (ING 3)","EFL League Two (ING 4)","Eliteserien (NOR 1)","Eredivisie (HOL 1)","Finnliiga (FIN 1)","Hellas Liga (GRE 1)","Iconos (ICN)","K League 1 (COR 1)","Libertadores (LIB)","LIGA BBVA MX (MEX 1)","Liga do Brasil (BRA 1)","Liga Hrvatska (CRO 1)","Liga I (RUM 1)","Liga NOS (POR 1)","Liga rusa (RUS 1)","Liga Ucraniana (UCR 1)","MBS Pro League (SAU 1)","Meiji Yasuda J1 (JPN 1)","MLS (MLS)","PKO Ekstraklasa (POL 1)","Premier League (ING 1)","Primera División (ARG 1)","RSL (SUI 1)","Scottish Prem (SPFL)","Selección Masc. (INT)","South African FL (RSA 1)","SSE Airtricity Lge (IRL 1)","Sudamericana (SUD)","Süper Lig (TUR 1)","United Emirates League (EAU 1)","Ö. Bundesliga (AUT 1)")
-liga.grid(row=0,column=0)
+liga.grid(row=0,column=1)
+liga.config(width=15)
 ##CLUB
 clubLabel=Label(frame3,text="CLUB")
-clubLabel.grid(row=0,column=1)
+clubLabel.grid(row=0,column=2)
 clubEntry = Entry(frame3)
-clubEntry.grid(row=0,column=2)
+clubEntry.config(width=15)
+clubEntry.grid(row=0,column=3)
 ##CALIDAD
+calidadLabel=Label(frame3,text="CALIDAD")
+calidadLabel.grid(row=1,column=0)
 calidadClicked=StringVar()
 calidadClicked.set("Ninguno")
 calidad= OptionMenu(frame3, calidadClicked,"Ninguno","Oro","Plata","Bronce","Especial")
-calidad.grid(row=1,column=0)
+calidad.config(width=15)
+calidad.grid(row=1,column=1)
 ##TIPO
+tipoLabel=Label(frame3,text="TIPO")
+tipoLabel.grid(row=1,column=2)
 tipoClicked=StringVar()
 tipoClicked.set("Ninguno")
-tipo= OptionMenu(frame3, tipoClicked,"Comunes","Únicos","Comun de la UCL","CONMEBOL LIBERTADORES","CONMEBOL SUDAMERICANA","Icono","Promesas","Único de la UCL")
-tipo.grid(row=1,column=1)
+tipo= OptionMenu(frame3, tipoClicked,"Ninguno","Comunes","Únicos","Comun de la UCL","CONMEBOL LIBERTADORES","CONMEBOL SUDAMERICANA","Icono","Promesas","Único de la UCL")
+tipo.config(width=15)
+tipo.grid(row=1,column=3)
 ##POSICION
+posicionLabel=Label(frame3,text="POSICION")
+posicionLabel.grid(row=2,column=0)
 posicionClicked=StringVar()
 posicionClicked.set("Ninguno")
-posicion= OptionMenu(frame3, posicionClicked,"POR","CAD","LD","DFC","LI","CAI","MCD","MD","MC","MI","MCO","SDD","SD","SDI","ED","DC","EI")
-posicion.grid(row=1,column=2)
+posicion= OptionMenu(frame3, posicionClicked,"Ninguno","POR","CAD","LD","DFC","LI","CAI","MCD","MD","MC","MI","MCO","SDD","SD","SDI","ED","DC","EI")
+posicion.config(width=15)
+posicion.grid(row=2,column=1)
+##NACIONALIDAD
+nacionalidadLabel=Label(frame3,text="¨PAIS")
+nacionalidadLabel.grid(row=2,column=2)
+nacionalidadEntry = Entry(frame3)
+nacionalidadEntry.config(width=15)
+nacionalidadEntry.grid(row=2,column=3)
 
-botonPrueba = Button(frame3, text="Selecciones", command=selecciones, width=7, height=3)
-botonPrueba.grid(row=4,column=0)
+botonPrueba = Button(frame3, text="Selecciones", command=selecciones, width=15, height=3)
+botonPrueba.grid(row=3,column=0)
 
 
 
@@ -865,7 +1001,7 @@ finalizar.grid(row=0,column=2)
 botonRevisarPrecio = Button(frameControles, text="Revisar Precio", command=revisarPrecio, width=7, height=3)
 botonRevisarPrecio.grid(row=0,column=5)
 
-botonPrueba = Button(frameControles, text="PRUEBA", command=reLogin, width=7, height=3)
+botonPrueba = Button(frameControles, text="PRUEBA", command=prueba, width=7, height=3)
 botonPrueba.grid(row=0,column=6)
 
 
