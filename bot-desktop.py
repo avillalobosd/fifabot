@@ -351,7 +351,6 @@ def clickRegresar():
 #CLICK EN PONER ARTICULO COMPRADO
 def ponerMercado():
     driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div/section[2]/div/div/div[2]/div[2]/div[1]/button").click()
-
 #DEFINIR PRECIO INICIAL DE ARTICULO COMPRADO
 def definirPrecio():
     #DEFINIR MINIMO
@@ -664,6 +663,180 @@ def iniciar():
 
 
 
+def clickPujar():
+    botonBid=driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div/section[2]/div/div/div[2]/div[2]/button[1]")
+    botonBid.click()
+
+def clickSiguiente():
+    botonSiguiente=driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div/section[1]/div/div/button[2]")
+    botonSiguiente.click()
+
+def recorrerBid(objetivos):
+    veces=50-int(objetivos)
+    encontrados=driver.find_elements_by_xpath("/html/body/main/section/section/div[2]/div/div/section[1]/div/ul/li")
+    # print(len(encontrados))
+    while (veces>=2):
+        for i in range(20):
+            elemento=driver.find_element_by_xpath('/html/body/main/section/section/div[2]/div/div/section[1]/div/ul/li['+str(i+1)+']')
+            precio=driver.find_element_by_xpath('/html/body/main/section/section/div[2]/div/div/section[1]/div/ul/li['+str(i+1)+']/div/div[2]/div[2]/span[2]').text
+            # print(precio)       
+            elemento.click()
+            time.sleep(3)
+            if(precio=="---" or int(precio)<int(maximo.get())):
+                clickPujar()
+                time.sleep(2)
+                try:
+                    mensaje=find_element_by_xpath('//*[@id="NotificationLayer"]/div')
+                    mensaje.click()
+                    time.sleep(300)
+                    break
+                except Exception:
+                    a=1
+                veces=veces-1
+                print("VECES"+str(veces))
+                time.sleep(2)
+                try:
+                    element=driver.find_element_by_xpath("/html/body/div[4]/section/div/div/button[1]")
+                    element.click()
+                except Exception:
+                    a=1                
+                if(veces<=2):
+                    break
+                # print(objetivos)
+
+            print(i)
+        clickSiguiente()
+        time.sleep(2)
+
+def borrarcaducos():
+    boton= driver.find_element_by_xpath("/html/body/main/section/nav/button[3]")
+    boton.click()
+    time.sleep(3)
+    botonObjetivos=driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div/div[4]")
+    botonObjetivos.click()
+    time.sleep(2)
+    try:
+        botonBorrar=driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div/div/section[4]/header/button")
+        botonBorrar.click()
+    except Exception:
+        print("NO CADUCOS")
+
+
+def limpiarvendidosBID():
+    ##CLICK MENU TRASPASOS
+    print("OK")
+    driver.find_element_by_xpath("/html/body/main/section/nav/button[3]").click()
+    time.sleep(4)
+    # CLICK MENU ELEMENTOS 
+    driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div/div[3]/div[2]").click()
+    time.sleep(5)
+    try:
+        driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div/div/section[1]/header/button").click()
+        time.sleep(3)
+    except Exception:
+        print("NO HAY VENDIDOS")
+    # driver.find_element_by_xpath("/html/body/main/section/nav/button[3]/span").click()
+    # time.sleep(5)
+    # driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div/div[2]/div[2]").click()
+    # saldo=driver.find_element_by_xpath("/html/body/main/section/section/div[1]/div[1]/div[1]").text
+    # enviarWhatsapp(saldo)
+
+
+def ponerenVentaBid():
+    aVender=driver.find_elements_by_xpath("/html/body/main/section/section/div[2]/div/div/div/section[3]/ul/li")
+    global numeraVender
+    numeroaVender=len(aVender)
+    print(numeroaVender)
+    while (int(numeroaVender>0)):
+        try:
+            vender=driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div/div/section[3]/ul/li[1]")
+            vender.click()
+            time.sleep(2)
+            ponerMercado=driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div/section/div/div/div[2]/div[2]/div[1]/button")
+            ponerMercado.click()
+            time.sleep(2)
+            precioInicial=driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div/section/div/div/div[2]/div[2]/div[2]/div[2]/div[2]/input")
+            precioInicial.click()
+            time.sleep(2)
+            precioInicial.send_keys(inicial.get())
+            precioFinal=driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div/section/div/div/div[2]/div[2]/div[2]/div[3]/div[2]/input")
+            precioFinal.click()
+            time.sleep(2)
+            precioFinal.send_keys(final.get())
+            time.sleep(1)
+            ponerenMercado=driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div/section/div/div/div[2]/div[2]/div[2]/button")
+            ponerenMercado.click()
+            time.sleep(2)
+            aVender=driver.find_elements_by_xpath("/html/body/main/section/section/div[2]/div/div/div/section[3]/ul/li")
+            global numeraVender
+            numeroaVender=len(aVender)
+        except Exception:
+            print("ESPERANDO 5 SEGUNDOS")
+            time.sleep(3)
+            aVender=driver.find_elements_by_xpath("/html/body/main/section/section/div[2]/div/div/div/section[3]/ul/li")
+            global numeraVender
+   
+
+        # break
+    
+def cambiarPais():
+    cambiado=0
+    if (nacionalidadEntry.get()=="Brasil" and cambiado==0):
+        nacionalidadEntry.delete(0,END)
+        nacionalidadEntry.insert(0,"Argentina")
+        return
+    if (nacionalidadEntry.get()=="Argentina" and cambiado==0):
+        nacionalidadEntry.delete(0,END)
+        nacionalidadEntry.insert(0,"Brasil")  
+        return
+
+
+def bidding():
+    print("INICIO")
+    # saldo=driver.find_element_by_xpath("/html/body/main/section/section/div[1]/div[1]/div[1]").text
+    # print(saldo)
+    global switchBid
+    switchBid = True
+    def run():
+        try:
+            while seguir:
+                ##CLICK EN TRASPASOS
+                boton= driver.find_element_by_xpath("/html/body/main/section/nav/button[3]")
+                boton.click()
+                time.sleep(3)
+                ## TOMA CUANTOS VALORES HAY EN LISTA
+                articulosObjetivo=driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div/div[4]/div[2]/div/div[1]/span[1]").text
+                print(articulosObjetivo)
+                ## CLICK EN OBJETIVOS DE MERCADO
+                driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div/div[2]/div[2]").click()
+                 ## PONE EL PAIS A BUSCAR
+                time.sleep(1)
+                pais=driver.find_element_by_xpath("/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[6]/div/div")
+                pais.click()
+                time.sleep(1)
+                contienePais=driver.find_element_by_xpath('/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[6]/div/ul/li[contains(.,"'+nacionalidadEntry.get()+'")]')
+                contienePais.click()
+                # CAMBIA EL PAIS PARA PROXIMA BUSQUEDA
+                time.sleep(1)
+                cambiarPais()
+                ## SIGUE
+                time.sleep(2)
+                clickBuscar()
+                time.sleep(2)
+                recorrerBid(articulosObjetivo)
+                limpiarvendidosBID()
+                time.sleep(2)
+                borrarcaducos()
+                time.sleep(3)
+                ponerenVentaBid()
+                time.sleep(300)
+                # break
+            
+        except Exception:
+            print("ALGO OCURRIO BID")
+    threadBid = threading.Thread(target=run)
+    threadBid.start()  
+
 
 
 def switchon():    
@@ -676,6 +849,8 @@ def switchoff():
     print ("switch off")
     global switch  
     switch = False  
+    global switchBid
+    switchBid = False  
     # my_stream.close()
     # tablaLog.insert(parent="",index="end",text="parent",values=("Apagado") )
 
@@ -860,10 +1035,6 @@ def selecciones():
         contienePais=driver.find_element_by_xpath('/html/body/main/section/section/div[2]/div/div[2]/div/div[1]/div[1]/div[6]/div/ul/li[contains(.,"'+nacionalidadEntry.get()+'")]')
         contienePais.click()
 
-
-
-def prueba():
-    db.update({"comando":"OK"})
     
 
 
@@ -1001,7 +1172,7 @@ finalizar.grid(row=0,column=2)
 botonRevisarPrecio = Button(frameControles, text="Revisar Precio", command=revisarPrecio, width=7, height=3)
 botonRevisarPrecio.grid(row=0,column=5)
 
-botonPrueba = Button(frameControles, text="PRUEBA", command=prueba, width=7, height=3)
+botonPrueba = Button(frameControles, text="BIDDING", command=bidding, width=7, height=3)
 botonPrueba.grid(row=0,column=6)
 
 
